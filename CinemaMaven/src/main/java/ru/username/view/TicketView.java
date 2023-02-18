@@ -3,7 +3,8 @@ package ru.username.view;
 import de.vandermeer.asciitable.AsciiTable;
 import ru.username.entity.Ticket;
 import ru.username.entity.User;
-import ru.username.model.service.ServiceTicket;
+import ru.username.service.TicketService;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +17,14 @@ public class TicketView {
      * @return
      */
     public boolean tiketMenuUser(User user){
-     ServiceTicket  serviceTicket = new ServiceTicket();
+        TicketService ticketModel = new TicketService();
      List<Ticket> list = new ArrayList<>();
         AsciiTable at = new AsciiTable();
         at.addRule();
         at.addRow("Фильм","цена","место","номер для выбора билета");
         at.addRule();
-        for (int i = 0; i < serviceTicket.select().size(); i++) {
-            Ticket t = serviceTicket.select().get(i);
+        for (int i = 0; i < ticketModel.select().size(); i++) {
+            Ticket t = ticketModel.select().get(i);
             if (t.getIspurchased() && user.getId().equals(t.getUser().getId())) {
            list.add(t);
             at.addRow(t.getMovie().getName(), t.getPrice(),t.getSeat(), t.getId());

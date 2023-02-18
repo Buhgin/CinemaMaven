@@ -3,11 +3,13 @@ package ru.username.controler;
 import ru.username.entity.Movie;
 import ru.username.entity.Ticket;
 import ru.username.entity.User;
-import ru.username.enume.Role;
-import ru.username.model.service.ServiceLoger;
-import ru.username.model.service.ServiceMovie;
-import ru.username.model.service.ServiceTicket;
-import ru.username.model.service.ServiceUser;
+import ru.username.enumerate.Role;
+import ru.username.service.MovieService;
+import ru.username.service.TicketService;
+import ru.username.service.UserLogService;
+
+
+import ru.username.service.UserService;
 import ru.username.view.MovieView;
 import ru.username.view.TicketView;
 import ru.username.view.UserView;
@@ -26,10 +28,10 @@ public class UserController {
     private final UserView userView = new UserView();
 
     private final TicketView ticketView = new TicketView();
-    private final ServiceLoger serviceLoger = new ServiceLoger();
-    private final ServiceUser serviceUser = new ServiceUser();
-    private final ServiceTicket serviceTicket = new ServiceTicket();
-    private final ServiceMovie serviceMovie = new ServiceMovie();
+    private final UserLogService userLogService = new UserLogService();
+    private final UserService userService = new UserService();
+    private final TicketService ticketService =  new TicketService();
+    private final MovieService movieService = new MovieService();
     private final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     /**
@@ -44,14 +46,15 @@ public class UserController {
             String password = br.readLine();
             user = new User(name, password);
 
-            if (Objects.isNull(name) || !serviceUser.isUserExists(name)) {
+            if (Objects.isNull(name) || userService.isUserExists(name)) {
                 System.out.println("Указанный вами пользователь существует!");
+                return;
             }
-            serviceUser.createUser(user);
+            userService.create(user);
 
             userView.userRegistry(name);
             String message = String.format("Пользователь %s зарегистрировался", name);
-            serviceLoger.addMessage(message, user);
+            userLogService.addMessage(message, user);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -73,10 +76,10 @@ public class UserController {
         System.out.println("role");
         Role role = Role.valueOf(br.readLine());
         User user = new User(login, password, role);
-        serviceUser.createUser(user);
+        userService.create(user);
         String message = String.format("Пользователь %s зарегистрировал пользователя %s", authUser.getName()
                 , user.getName());
-        serviceLoger.addMessage(message, user);
+        userLogService.addMessage(message, user);
     }
 
     /**
@@ -102,10 +105,10 @@ public class UserController {
             user.setName(newName);
             System.out.println("Укажите новый пароль");
             user.setPassword(br.readLine());
-            serviceUser.updatePassword(user);
+            userService.updatePassword(user);
             String message = String.format("Имя %s было изменено на %s, пользователем %s", lastName
                     , newName, authUser.getName());
-            serviceLoger.addMessage(message, authUser);
+            userLogService.addMessage(message, authUser);
 
         } else {
             user = selectById(Long.parseLong(br.readLine()));
@@ -114,7 +117,7 @@ public class UserController {
 
             String message = String.format("Билет пользователя %s был возвращен менеджером %s ",
                     user.getName(), authUser.getName());
-            serviceLoger.addMessage(message, authUser);
+            userLogService.addMessage(message, authUser);
 
         }
         return user;
@@ -135,16 +138,16 @@ public class UserController {
 
 
             long number = parseInt(br.readLine());
-            if (isNull(serviceTicket.selectById(number))) {
+            if (isNull(ticketService.slectID(number))) {
                 return null;
             }
-            Ticket removeTicket = serviceTicket.selectById(number);
+            Ticket removeTicket = ticketService.slectID(number);
 
             returnBalanceUser(removeTicket, user);
 
             String message = String.format("Билет на фильм %s был сдан баланс юзер пополнился на %f",
                     removeTicket.getMovie().getName(), removeTicket.getPrice());
-            serviceLoger.addMessage(message, user);
+            userLogService.addMessage(message, user);
 
             return removeTicket;
         }
@@ -161,13 +164,13 @@ public class UserController {
     public Ticket paymentTickets(User user) throws IOException {
 
         try {
-            movieView.movieMenu(serviceMovie.select());
+            movieView.movieMenu(movieService.select());
             Ticket ticketBuy;
             System.out.println("Выберите предпочитаемый фильм. \n" +
                     "Для выбора фильма введите идентификатор этого фильма:");
-            Movie currentMovie = serviceMovie.selectById(Long.parseLong(br.readLine()));
+            Movie currentMovie = movieService.slectID(Long.parseLong(br.readLine()));
             movieView.selectFreeplacetMenu(currentMovie);
-            ticketBuy = serviceTicket.selectBySeat(Integer.valueOf(br.readLine()), currentMovie);
+            ticketBuy = ticketService.selectBySeat(Integer.valueOf(br.readLine()), currentMovie);
             if (!balanceBuyUser(ticketBuy, user)) {
                 return null;
             }
@@ -175,7 +178,7 @@ public class UserController {
 
             String message = String.format("Пользователь %s купил билет на фильм %s со счета списанно %f",
                     user.getName(), ticketBuy.getMovie().getName(), ticketBuy.getPrice());
-            serviceLoger.addMessage(message, user);
+            userLogService.addMessage(message, user);
 
 
             return ticketBuy;
@@ -193,7 +196,7 @@ public class UserController {
      */
     public void returnBalanceUser(Ticket ticketBuy, User user) {
         user.setBalance(user.getBalance() + ticketBuy.getPrice());
-        serviceUser.update(user);
+        userService.update(user);
     }
 
     /**
@@ -209,13 +212,13 @@ public class UserController {
         }
 
         user.setBalance(user.getBalance() - ticketBuy.getPrice());
-        serviceUser.update(user);
+        userService.update(user);
         return true;
     }
 
 
     public User selectById(Long id) {
-        return serviceUser.selectById(id);
+        return userService.slectID(id);
     }
 
 
@@ -231,7 +234,7 @@ public class UserController {
             String name = br.readLine();
             System.out.println("Укажте пароль");
             String password = br.readLine();
-            authUser = serviceUser.setCerrentUser(name);
+            authUser = userService.setCerrentUser(name);
             if (isNull(authUser)) {
 
                 return null;
@@ -240,7 +243,7 @@ public class UserController {
                 System.out.println("Авторизация прошла");
                 String message = String.format("Пользователь %s вошел в систему",
                         authUser.getName());
-                serviceLoger.addMessage(message, authUser);
+                userLogService.addMessage(message, authUser);
             } else {
                 System.out.println("Данные указаны не верно");
                 getAuthUser();
@@ -272,10 +275,10 @@ public class UserController {
 
                 return;
             }
-            serviceUser.delete(u);
+            userService.delete(u);
             String message = String.format("пользователь %s удалил пользователя %s под id %d ",
                     user.getName(), u.getName(), u.getId());
-            serviceLoger.addMessage(message, user);
+            userLogService.addMessage(message, user);
         } catch (IOException | NumberFormatException e) {
             System.err.println("не верный формат");
             e.printStackTrace();
@@ -292,15 +295,15 @@ public class UserController {
      * @return
      */
     private Boolean passwordChek(User authUser, String pas) {
-        Boolean chek = serviceUser.passwordEncoding(pas).equals(authUser.getPassword());
+        Boolean chek = userService.passwordEncoding(pas).equals(authUser.getPassword());
         if (chek) {
             String message = String.format("Пароль пользователя %s прошел проверку авторизации",
                     authUser.getName());
-            serviceLoger.addMessage(message, authUser);
+            userLogService.addMessage(message, authUser);
         } else {
             String message = String.format("пользователь %s ввел неверный пароль ",
                     authUser.getName());
-            serviceLoger.addMessage(message, authUser);
+            userLogService.addMessage(message, authUser);
         }
         return chek;
     }

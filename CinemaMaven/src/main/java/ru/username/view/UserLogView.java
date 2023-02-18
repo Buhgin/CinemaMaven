@@ -3,13 +3,14 @@ package ru.username.view;
 import de.vandermeer.asciitable.AsciiTable;
 import ru.username.entity.User;
 import ru.username.entity.UserLog;
-import ru.username.model.service.ServiceLoger;
+import ru.username.service.UserLogService;
 
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class UserLogView {
-    private final ServiceLoger serviceLoger = new ServiceLoger();
+    private final UserLogService userLogModel = new UserLogService();
+
 
     /**
      * экспортирует лог в текстовый файл
@@ -27,7 +28,7 @@ public class UserLogView {
            }
             String message = String.format("Пользователь %s 'экспортировал лог ",
                     user.getName());
-            serviceLoger.addMessage(message,user);
+            userLogModel.addMessage(message,user);
 
 
         } catch (IOException e) {
@@ -52,7 +53,7 @@ public class UserLogView {
         System.out.println(at.render());
         String message = String.format("Пользователь %s посмотрел лог ",
                 user.getName());
-        serviceLoger.addMessage(message,user);
+        userLogModel.addMessage(message,user);
     }
 
 

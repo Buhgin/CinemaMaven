@@ -3,8 +3,9 @@ package ru.username.controler;
 import ru.username.entity.Movie;
 import ru.username.entity.Ticket;
 import ru.username.entity.User;
-import ru.username.model.service.ServiceMovie;
-import ru.username.model.service.ServiceTicket;
+
+import ru.username.service.TicketService;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class TicketController {
     private final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-    private final ServiceTicket serviceTicket = new ServiceTicket();
+    private final TicketService ticketService = new TicketService();
 
     /**
      * Записывает билету пользователя
@@ -28,7 +29,7 @@ public class TicketController {
     }
     ticketBuy.setIspurchased(true);
     ticketBuy.setUser(user);
-    serviceTicket.update(ticketBuy);
+    ticketService.update(ticketBuy);
 
 
 }
@@ -42,7 +43,7 @@ public class TicketController {
     }
     ticketReturn.setIspurchased(false);
     ticketReturn.setUser(null);
-    serviceTicket.update(ticketReturn);
+    ticketService.update(ticketReturn);
 
     }
 
@@ -75,7 +76,7 @@ public class TicketController {
 
             for (int i = 1; i <= 10; i++) {
                 Ticket ticket = new Ticket(i, price, movie);
-                serviceTicket.create(ticket);
+                ticketService.create(ticket);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

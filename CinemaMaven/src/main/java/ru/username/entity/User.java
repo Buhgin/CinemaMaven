@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import ru.username.enume.Role;
+import ru.username.enumerate.Role;
 
 import java.util.List;
 

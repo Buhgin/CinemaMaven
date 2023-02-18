@@ -1,12 +1,14 @@
 package ru.username;
 
 import ru.username.controler.UserLogController;
+import ru.username.service.MovieService;
 import ru.username.view.*;
 import ru.username.controler.MovieController;
 import ru.username.controler.TicketController;
 import ru.username.controler.UserController;
 import ru.username.entity.User;
-import ru.username.model.service.ServiceMovie;
+
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +21,8 @@ public class Mainapp {
     private final TicketController ticketController = new TicketController();
     private final TicketView ticketView = new TicketView();
     private final MovieView movieView = new MovieView();
-    private final ServiceMovie serviceMovie = new ServiceMovie();
+    private final MovieService movieService = new MovieService();
+
     private final UserLogView userLogView = new UserLogView();
     private final MenuView menuView = new MenuView();
     private final UserView userView = new UserView();
@@ -75,7 +78,7 @@ public class Mainapp {
             menuView.printMainMenuManager();
             i = Integer.parseInt(br.readLine());
             switch (i) {
-                case 1 -> movieView.movieMenu(serviceMovie.select());
+                case 1 -> movieView.movieMenu(movieService.select());
                 case 2 -> movieController.updateMovie();
                 case 3 -> movieController.createMovie();
                 case 4 -> ticketController.returnTicket(
@@ -107,7 +110,7 @@ public class Mainapp {
             menuView.printMainMenuUser();
             i = Integer.parseInt(br.readLine());
             switch (i) {
-                case 1 -> movieView.movieMenu(serviceMovie.select());
+                case 1 -> movieView.movieMenu(movieService.select());
                 case 2 -> ticketController.buyTicketUser(authUser, userController.paymentTickets(authUser));
                 case 3 ->  ticketController.returnTicket(userController.returnTicket(authUser));
                 case 4 -> ticketView.tiketMenuUser(authUser);
@@ -142,7 +145,7 @@ public class Mainapp {
                 case 1 -> userView.selectUser(authUser);
                 case 2 -> userController.updateUser(authUser);
                 case 3 -> userController.remove(authUser);
-                case 4 -> movieView.movieMenu(serviceMovie.select());
+                case 4 -> movieView.movieMenu(movieService.select());
                 case 5 -> movieController.updateMovie();
                 case 6 -> movieController.deleteMovie();
                 case 7 -> userLogController.showLogAdmin(authUser);

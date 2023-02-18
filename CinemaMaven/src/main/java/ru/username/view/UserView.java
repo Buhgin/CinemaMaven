@@ -2,13 +2,13 @@ package ru.username.view;
 
 import de.vandermeer.asciitable.AsciiTable;
 import ru.username.entity.User;
-import ru.username.enume.Role;
-import ru.username.model.service.ServiceLoger;
-import ru.username.model.service.ServiceUser;
+import ru.username.enumerate.Role;
+import ru.username.service.UserLogService;
+import ru.username.service.UserService;
 
 public class UserView {
-     ServiceUser serviceUser = new ServiceUser();
-    ServiceLoger serviceLoger = new ServiceLoger();
+  private final UserService userModel = new UserService();
+    private final UserLogService userLogModel = new UserLogService();
     public void userRegistry(String name){
         String congrats = String.format(
                 "Поздравляем! Вы успешно зарегистрировались в системе!\n" +
@@ -27,13 +27,13 @@ public class UserView {
         System.out.println();
         String message = String.format("Пользователь %s посмотрел профиль",
                 user.getName());
-        serviceLoger.addMessage(message,user);
+        userLogModel.addMessage(message,user);
 
     }
     public Double getBalance(User user){
         String message = String.format("Пользователь %s посмотрел баланс",
                 user.getName());
-        serviceLoger.addMessage(message,user);
+        userLogModel.addMessage(message,user);
         return user.getBalance();
     }
 
@@ -45,7 +45,7 @@ public class UserView {
         AsciiTable at = new AsciiTable();
         at.addRule();
         at.addRow("Логин","id");
-        for(User u: serviceUser.select()){
+        for(User u: userModel.select()){
             if(u.getRole()== Role.USER){
             at.addRow(u.getName(),u.getId());
             at.addRule();}
@@ -54,6 +54,6 @@ public class UserView {
         System.out.println(at.render());
         String message = String.format("Пользователь %s , роль %s, посмотрел список пользователей ",
                 user.getName(),user.getRole());
-        serviceLoger.addMessage(message,user);
+        userLogModel.addMessage(message,user);
     }
 }
